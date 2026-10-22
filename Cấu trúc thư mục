@@ -1,0 +1,15 @@
+src/
+ ┣ components/
+ ┃ ┣ Navbar.tsx
+ ┃ ┗ ProtectedRoute.tsx
+ ┣ context/
+ ┃ ┗ AuthContext.tsx
+ ┣ pages/
+ ┃ ┣ Home.tsx
+ ┃ ┣ PostDetail.tsx
+ ┃ ┣ Login.tsx
+ ┃ ┣ CreatePost.tsx
+ ┃ ┗ NotFound.tsx
+ ┣ types.ts
+ ┣ App.tsx
+ ┗ main.tsx
