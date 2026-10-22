@@ -1,0 +1,57 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Post } from '../types';
+
+export default function CreatePost() {
+  const [title, setTitle] = useState('');
+  const [body, setBody] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Kiểm tra dữ liệu (Validation)
+    if (title.trim().length < 5) {
+      setError('Tiêu đề phải có ít nhất 5 ký tự.');
+      return;
+    }
+    if (body.trim().length < 10) {
+      setError('Nội dung phải có ít nhất 10 ký tự.');
+      return;
+    }
+
+    const newPost: Post = {
+      id: `local_${Date.now()}`, // Tạo ID riêng cho bài viết lưu local
+      title,
+      body,
+    };
+
+    const localData = localStorage.getItem('localPosts');
+    const localPosts: Post[] = localData ? JSON.parse(localData) : [];
+    
+    // Lưu vào đầu danh sách
+    localStorage.setItem('localPosts', JSON.stringify([newPost, ...localPosts]));
+    
+    alert('Thêm bài viết thành công!');
+    navigate('/');
+  };
+
+  return (
+    <div>
+      <h2>Viết bài mới</h2>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxWidth: '500px' }}>
+        <input 
+          type="text" placeholder="Tiêu đề..." value={title}
+          onChange={(e) => setTitle(e.target.value)} style={{ padding: '8px' }}
+        />
+        <textarea 
+          placeholder="Nội dung bài viết..." value={body} rows={5}
+          onChange={(e) => setBody(e.target.value)} style={{ padding: '8px' }}
+        />
+        {error && <span style={{ color: 'red' }}>{error}</span>}
+        <button type="submit" style={{ padding: '10px' }}>Lưu bài viết</button>
+      </form>
+    </div>
+  );
+}
