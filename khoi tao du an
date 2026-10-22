@@ -1,0 +1,4 @@
+bash 
+npm create vite@latest miniblog -- --template react-ts
+cd miniblog
+npm install react-router-dom 
