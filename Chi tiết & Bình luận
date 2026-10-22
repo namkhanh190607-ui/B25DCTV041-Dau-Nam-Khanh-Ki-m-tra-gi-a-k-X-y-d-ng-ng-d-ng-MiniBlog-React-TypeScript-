@@ -1,0 +1,69 @@
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { Post, Comment } from '../types';
+
+export default function PostDetail() {
+  const { id } = useParams();
+  const [post, setPost] = useState<Post | null>(null);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchDetail = async () => {
+      setLoading(true);
+      try {
+        // Kiểm tra xem bài viết có trong localStorage không (bài tự viết)
+        const localData = localStorage.getItem('localPosts');
+        const localPosts: Post[] = localData ? JSON.parse(localData) : [];
+        const localPost = localPosts.find((p) => String(p.id) === id);
+
+        if (localPost) {
+          setPost(localPost);
+          setComments([]); // Bài viết mới chưa có bình luận API
+          setLoading(false);
+          return;
+        }
+
+        // Nếu không có ở local, gọi API
+        const [postRes, commentsRes] = await Promise.all([
+          fetch(`https://jsonplaceholder.typicode.com/posts/${id}`),
+          fetch(`https://jsonplaceholder.typicode.com/posts/${id}/comments`),
+        ]);
+
+        if (!postRes.ok) throw new Error('Không tìm thấy bài viết');
+        
+        setPost(await postRes.json());
+        setComments(await commentsRes.json());
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDetail();
+  }, [id]);
+
+  if (loading) return <h3>Đang tải chi tiết...</h3>;
+  if (error) return <h3 style={{ color: 'red' }}>Lỗi: {error}</h3>;
+  if (!post) return <h3>Bài viết không tồn tại.</h3>;
+
+  return (
+    <div>
+      <h1>{post.title}</h1>
+      <p>{post.body}</p>
+      
+      <hr />
+      <h3>Bình luận ({comments.length})</h3>
+      {comments.length === 0 ? <p>Chưa có bình luận nào.</p> : (
+        <ul>
+          {comments.map((cmt) => (
+            <li key={cmt.id} style={{ marginBottom: '10px' }}>
+              <strong>{cmt.email}</strong>: {cmt.body}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
