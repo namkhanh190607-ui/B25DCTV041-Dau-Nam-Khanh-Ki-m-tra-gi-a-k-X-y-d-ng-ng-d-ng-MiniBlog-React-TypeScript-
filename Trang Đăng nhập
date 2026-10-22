@@ -1,0 +1,39 @@
+import { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
+
+export default function Login() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  
+  const auth = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (auth?.login(username, password)) {
+      navigate('/create');
+    } else {
+      setError('Tài khoản hoặc mật khẩu không đúng (admin/123456)');
+    }
+  };
+
+  return (
+    <div>
+      <h2>Đăng nhập</h2>
+      <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '300px' }}>
+        <input 
+          type="text" placeholder="Tên đăng nhập" required
+          value={username} onChange={(e) => setUsername(e.target.value)} 
+        />
+        <input 
+          type="password" placeholder="Mật khẩu" required
+          value={password} onChange={(e) => setPassword(e.target.value)} 
+        />
+        {error && <span style={{ color: 'red' }}>{error}</span>}
+        <button type="submit">Đăng nhập</button>
+      </form>
+    </div>
+  );
+}
